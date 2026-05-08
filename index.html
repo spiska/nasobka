@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a2e">
+<title>Násobilka</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: #1a1a2e;
+    color: #fff;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .score {
+    text-align: center;
+    padding: 12px;
+    font-size: 1rem;
+    color: #8a8aa3;
+    letter-spacing: 0.05em;
+  }
+  .score strong { color: #fff; }
+  .question {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(3rem, 18vw, 7rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+    height: 55vh;
+    max-height: 55vh;
+  }
+  .answer {
+    border: none;
+    border-radius: 18px;
+    background: #2a2a4a;
+    color: #fff;
+    font-size: clamp(2rem, 9vw, 3.5rem);
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.08s ease, background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .answer:active { transform: scale(0.96); }
+  .answer.correct {
+    background: #2ecc71;
+    animation: pop 0.3s ease;
+  }
+  .answer.wrong {
+    background: #e74c3c;
+    animation: shake 0.3s ease;
+  }
+  .answer:disabled { cursor: default; }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+</style>
+</head>
+<body>
+  <div class="score">
+    <strong id="correct">0</strong> správne · <strong id="wrong">0</strong> chyby
+  </div>
+  <div class="question" id="question">— × — </div>
+  <div class="grid" id="grid"></div>
+
+<script>
+  const qEl = document.getElementById('question');
+  const gridEl = document.getElementById('grid');
+  const correctEl = document.getElementById('correct');
+  const wrongEl = document.getElementById('wrong');
+
+  let correctCount = 0;
+  let wrongCount = 0;
+  let currentAnswer = 0;
+  let locked = false;
+
+  function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function generateOptions(answer) {
+    const options = new Set([answer]);
+    while (options.size < 4) {
+      const delta = rand(1, 8) * (Math.random() < 0.5 ? -1 : 1);
+      const candidate = answer + delta;
+      if (candidate > 0 && candidate <= 100) options.add(candidate);
+    }
+    return Array.from(options).sort(() => Math.random() - 0.5);
+  }
+
+  function nextQuestion() {
+    locked = false;
+    const a = rand(1, 10);
+    const b = rand(1, 10);
+    currentAnswer = a * b;
+    qEl.textContent = `${a} × ${b}`;
+
+    const options = generateOptions(currentAnswer);
+    gridEl.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'answer';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => handleAnswer(btn, opt));
+      gridEl.appendChild(btn);
+    });
+  }
+
+  function handleAnswer(btn, value) {
+    if (locked) return;
+    locked = true;
+    const buttons = gridEl.querySelectorAll('.answer');
+    buttons.forEach(b => b.disabled = true);
+
+    if (value === currentAnswer) {
+      btn.classList.add('correct');
+      correctCount++;
+      correctEl.textContent = correctCount;
+      setTimeout(nextQuestion, 600);
+    } else {
+      btn.classList.add('wrong');
+      wrongCount++;
+      wrongEl.textContent = wrongCount;
+      buttons.forEach(b => {
+        if (parseInt(b.textContent, 10) === currentAnswer) {
+          b.classList.add('correct');
+        }
+      });
+      setTimeout(nextQuestion, 1200);
+    }
+  }
+
+  nextQuestion();
+</script>
+</body>
+</html>
