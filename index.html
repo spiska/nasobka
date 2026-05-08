@@ -138,6 +138,11 @@
     font-weight: 800;
     color: #2d1b4e;
   }
+  .summary .subtitle {
+    color: #6b4d8a;
+    font-size: 1rem;
+    margin-top: -6px;
+  }
   .summary .points {
     font-size: clamp(4rem, 20vw, 7rem);
     font-weight: 800;
@@ -188,6 +193,12 @@
   </div>
   <div class="question" id="question">— × — </div>
   <div class="grid" id="grid"></div>
+
+  <div class="summary" id="startScreen">
+    <h1>Násobilka</h1>
+    <div class="subtitle">10 otázok · 4 možnosti</div>
+    <button class="play-again" id="startBtn">Štart</button>
+  </div>
 
   <div class="summary hidden" id="summary">
     <h1>Hotovo!</h1>
@@ -325,6 +336,7 @@
     correctEl.textContent = '0';
     qNumEl.textContent = '1';
 
+    document.getElementById('startScreen').classList.add('hidden');
     statusEl.classList.remove('hidden');
     qEl.classList.remove('hidden');
     gridEl.classList.remove('hidden');
@@ -338,9 +350,19 @@
     nextQuestion();
   }
 
+  function showStartScreen() {
+    clearInterval(timerInterval);
+    statusEl.classList.add('hidden');
+    qEl.classList.add('hidden');
+    gridEl.classList.add('hidden');
+    summaryEl.classList.add('hidden');
+    document.getElementById('startScreen').classList.remove('hidden');
+  }
+
   playAgainBtn.addEventListener('click', start);
-  document.getElementById('resetBtn').addEventListener('click', start);
-  start();
+  document.getElementById('startBtn').addEventListener('click', start);
+  document.getElementById('resetBtn').addEventListener('click', showStartScreen);
+  showStartScreen();
 </script>
 </body>
 </html>
