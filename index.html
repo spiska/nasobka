@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#ffd6ec">
 <title>Násobilka</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Násobilka">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body {
@@ -130,13 +136,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 24px;
-    gap: 18px;
+    justify-content: flex-start;
+    padding: 28px 20px 24px;
+    gap: 14px;
     text-align: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .summary h1 {
-    font-size: clamp(1.8rem, 7vw, 2.6rem);
+    font-size: clamp(1.8rem, 7vw, 2.4rem);
     font-weight: 800;
     color: #2d1b4e;
   }
@@ -146,7 +154,7 @@
     margin-top: -6px;
   }
   .summary .points {
-    font-size: clamp(4rem, 20vw, 7rem);
+    font-size: clamp(3rem, 14vw, 5rem);
     font-weight: 800;
     background: linear-gradient(135deg, #ff8fc8, #a570ff, #5b8fff);
     -webkit-background-clip: text;
@@ -157,23 +165,23 @@
   .summary .stats {
     display: flex;
     gap: 32px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: #6b4d8a;
   }
   .summary .stats strong {
     display: block;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     color: #2d1b4e;
     margin-top: 4px;
   }
   .play-again {
-    margin-top: 20px;
-    padding: 18px 48px;
+    margin-top: 8px;
+    padding: 16px 44px;
     border: none;
     border-radius: 22px;
     background: linear-gradient(135deg, #ff8fc8, #a570ff);
     color: #fff;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 800;
     font-family: inherit;
     cursor: pointer;
@@ -181,6 +189,129 @@
     box-shadow: 0 6px 20px rgba(165, 112, 255, 0.4);
   }
   .play-again:active { transform: scale(0.96); }
+  .link-btn {
+    background: rgba(255, 255, 255, 0.55);
+    border: none;
+    color: #6b4d8a;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 12px 24px;
+    border-radius: 14px;
+    transition: transform 0.08s ease, background 0.2s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .link-btn:active {
+    transform: scale(0.96);
+    background: rgba(255, 255, 255, 0.85);
+  }
+  .save-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 340px;
+    margin-top: 4px;
+  }
+  .name-input {
+    flex: 1;
+    min-width: 0;
+    padding: 14px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.7);
+    color: #2d1b4e;
+    font-size: 1.05rem;
+    font-family: inherit;
+    font-weight: 600;
+    outline: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .name-input:focus {
+    border-color: #a570ff;
+    background: rgba(255, 255, 255, 0.95);
+  }
+  .save-btn {
+    padding: 14px 22px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ff8fc8, #a570ff);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.08s ease, opacity 0.2s ease;
+  }
+  .save-btn:active { transform: scale(0.96); }
+  .save-btn:disabled { opacity: 0.5; cursor: default; }
+  .save-msg {
+    font-size: 0.9rem;
+    color: #d63384;
+    min-height: 1.2em;
+  }
+  .leaderboard {
+    width: 100%;
+    max-width: 360px;
+    margin-top: 4px;
+  }
+  .leaderboard h2 {
+    font-size: 0.85rem;
+    color: #6b4d8a;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .leaderboard ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .leaderboard li {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 12px;
+    margin-bottom: 5px;
+    font-size: 1rem;
+    color: #2d1b4e;
+  }
+  .leaderboard li.me {
+    background: linear-gradient(135deg, #ff8fc8, #a570ff);
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(165, 112, 255, 0.35);
+  }
+  .leaderboard .rank {
+    width: 28px;
+    text-align: left;
+    font-weight: 700;
+    opacity: 0.7;
+  }
+  .leaderboard li.me .rank { opacity: 1; }
+  .leaderboard .name {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 8px;
+  }
+  .leaderboard .score {
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .leaderboard .empty {
+    text-align: center;
+    color: #6b4d8a;
+    padding: 12px;
+  }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -200,6 +331,15 @@
     <h1>Násobilka</h1>
     <div class="subtitle">10 otázok · 4 možnosti</div>
     <button class="play-again" id="startBtn">Štart</button>
+    <button class="link-btn" id="openLeaderboardBtn">🏆 Rebríček</button>
+  </div>
+
+  <div class="summary hidden" id="leaderboardScreen">
+    <h1>🏆 Rebríček</h1>
+    <div class="leaderboard">
+      <ol id="standaloneLeaderboardList"></ol>
+    </div>
+    <button class="play-again" id="backFromLeaderboardBtn">Späť</button>
   </div>
 
   <div class="summary hidden" id="summary">
@@ -209,11 +349,23 @@
       <div>Správne<strong id="finalCorrect">0/10</strong></div>
       <div>Čas<strong id="finalTime">0.0 s</strong></div>
     </div>
+    <div class="save-row" id="saveRow">
+      <input type="text" class="name-input" id="nameInput" placeholder="Tvoje meno" maxlength="20" autocomplete="off" autocapitalize="words">
+      <button class="save-btn" id="saveBtn">Uložiť</button>
+    </div>
+    <div class="save-msg" id="saveMsg"></div>
+    <div class="leaderboard hidden" id="leaderboard">
+      <h2>Top 10</h2>
+      <ol id="leaderboardList"></ol>
+    </div>
     <button class="play-again" id="playAgain">Znova</button>
   </div>
 
 <script>
   const TOTAL_QUESTIONS = 10;
+  const SAVE_URL = 'https://hook.eu1.make.com/s3qla42l3rlaonskbkmkfqs9aqp99axy';
+  const LIST_URL = 'https://hook.eu1.make.com/hgy6628rpsxt97459vikaaftba8luv7r';
+  const NAME_KEY = 'nasobka.name';
 
   const qEl = document.getElementById('question');
   const gridEl = document.getElementById('grid');
@@ -227,12 +379,20 @@
   const finalTimeEl = document.getElementById('finalTime');
   const playAgainBtn = document.getElementById('playAgain');
 
+  const saveRow = document.getElementById('saveRow');
+  const saveBtn = document.getElementById('saveBtn');
+  const saveMsg = document.getElementById('saveMsg');
+  const nameInput = document.getElementById('nameInput');
+  const leaderboardEl = document.getElementById('leaderboard');
+  const leaderboardListEl = document.getElementById('leaderboardList');
+
   let questionIndex = 0;
   let correctCount = 0;
   let currentAnswer = 0;
   let locked = false;
   let startTime = 0;
   let timerInterval = null;
+  let lastPoints = 0;
 
   function rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -321,6 +481,7 @@
     clearInterval(timerInterval);
     const totalTime = elapsedSeconds();
     const points = computeScore(correctCount, totalTime);
+    lastPoints = points;
 
     statusEl.classList.add('hidden');
     qEl.classList.add('hidden');
@@ -329,8 +490,99 @@
     finalPointsEl.textContent = points;
     finalCorrectEl.textContent = `${correctCount}/${TOTAL_QUESTIONS}`;
     finalTimeEl.textContent = `${totalTime.toFixed(1)} s`;
+
+    saveRow.classList.remove('hidden');
+    leaderboardEl.classList.add('hidden');
+    saveMsg.textContent = '';
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Uložiť';
+    nameInput.value = localStorage.getItem(NAME_KEY) || '';
+
     summaryEl.classList.remove('hidden');
   }
+
+  async function saveScore(name, score) {
+    const url = `${SAVE_URL}?name=${encodeURIComponent(name)}&score=${score}`;
+    const res = await fetch(url, { method: 'GET' });
+    if (!res.ok) throw new Error('save failed: ' + res.status);
+  }
+
+  async function loadTop10() {
+    const res = await fetch(LIST_URL);
+    if (!res.ok) throw new Error('load failed: ' + res.status);
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  }
+
+  function renderLeaderboard(listEl, entries, highlightName, highlightScore) {
+    const sorted = entries
+      .filter(e => e && typeof e.name === 'string')
+      .slice()
+      .sort((a, b) => (b.score || 0) - (a.score || 0))
+      .slice(0, 10);
+
+    listEl.innerHTML = '';
+    if (sorted.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'empty';
+      li.textContent = 'Zatiaľ žiadne skóre';
+      listEl.appendChild(li);
+      return;
+    }
+
+    let highlighted = false;
+    sorted.forEach((e, i) => {
+      const li = document.createElement('li');
+      const isMe = !highlighted &&
+        highlightName && e.name === highlightName &&
+        Number(e.score) === Number(highlightScore);
+      if (isMe) {
+        li.classList.add('me');
+        highlighted = true;
+      }
+      const rank = document.createElement('span');
+      rank.className = 'rank';
+      rank.textContent = (i + 1) + '.';
+      const name = document.createElement('span');
+      name.className = 'name';
+      name.textContent = e.name;
+      const score = document.createElement('span');
+      score.className = 'score';
+      score.textContent = e.score;
+      li.appendChild(rank);
+      li.appendChild(name);
+      li.appendChild(score);
+      listEl.appendChild(li);
+    });
+  }
+
+  async function handleSave() {
+    const name = nameInput.value.trim();
+    if (!name) {
+      nameInput.focus();
+      return;
+    }
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Ukladám…';
+    saveMsg.textContent = '';
+    try {
+      await saveScore(name, lastPoints);
+      localStorage.setItem(NAME_KEY, name);
+      const entries = await loadTop10();
+      renderLeaderboard(leaderboardListEl, entries, name, lastPoints);
+      saveRow.classList.add('hidden');
+      leaderboardEl.classList.remove('hidden');
+    } catch (err) {
+      saveMsg.textContent = 'Nepodarilo sa uložiť. Skús znova.';
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Uložiť';
+    }
+  }
+
+  saveBtn.addEventListener('click', handleSave);
+  nameInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleSave();
+  });
 
   function start() {
     questionIndex = 0;
@@ -358,12 +610,39 @@
     qEl.classList.add('hidden');
     gridEl.classList.add('hidden');
     summaryEl.classList.add('hidden');
+    document.getElementById('leaderboardScreen').classList.add('hidden');
     document.getElementById('startScreen').classList.remove('hidden');
+  }
+
+  async function openLeaderboardScreen() {
+    document.getElementById('startScreen').classList.add('hidden');
+    const screen = document.getElementById('leaderboardScreen');
+    const list = document.getElementById('standaloneLeaderboardList');
+    screen.classList.remove('hidden');
+
+    list.innerHTML = '';
+    const loading = document.createElement('li');
+    loading.className = 'empty';
+    loading.textContent = 'Načítavam…';
+    list.appendChild(loading);
+
+    try {
+      const entries = await loadTop10();
+      renderLeaderboard(list, entries);
+    } catch (err) {
+      list.innerHTML = '';
+      const fail = document.createElement('li');
+      fail.className = 'empty';
+      fail.textContent = 'Nepodarilo sa načítať';
+      list.appendChild(fail);
+    }
   }
 
   playAgainBtn.addEventListener('click', start);
   document.getElementById('startBtn').addEventListener('click', start);
   document.getElementById('resetBtn').addEventListener('click', showStartScreen);
+  document.getElementById('openLeaderboardBtn').addEventListener('click', openLeaderboardScreen);
+  document.getElementById('backFromLeaderboardBtn').addEventListener('click', showStartScreen);
   showStartScreen();
 </script>
 </body>
