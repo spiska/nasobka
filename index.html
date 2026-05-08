@@ -82,25 +82,34 @@
   }
   .answer {
     border: none;
-    border-radius: 18px;
-    background: #2a2a4a;
-    color: #fff;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.7);
+    color: #2d1b4e;
     font-size: clamp(2rem, 9vw, 3.5rem);
-    font-weight: 700;
+    font-weight: 800;
     font-family: inherit;
     cursor: pointer;
-    transition: transform 0.08s ease, background 0.2s ease;
+    transition: transform 0.08s ease, background 0.2s ease, box-shadow 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 16px rgba(168, 85, 247, 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
+  .answer:nth-child(1) { background: linear-gradient(135deg, #ffb3d9, #ff8fc8); color: #fff; }
+  .answer:nth-child(2) { background: linear-gradient(135deg, #c9a3ff, #a570ff); color: #fff; }
+  .answer:nth-child(3) { background: linear-gradient(135deg, #8fb8ff, #5b8fff); color: #fff; }
+  .answer:nth-child(4) { background: linear-gradient(135deg, #ff9ec7, #c478ff); color: #fff; }
   .answer:active { transform: scale(0.96); }
   .answer.correct {
-    background: #2ecc71;
+    background: linear-gradient(135deg, #6ee7a3, #2ecc71) !important;
+    color: #fff !important;
     animation: pop 0.3s ease;
   }
   .answer.wrong {
-    background: #e74c3c;
+    background: linear-gradient(135deg, #ff8a8a, #e74c3c) !important;
+    color: #fff !important;
     animation: shake 0.3s ease;
   }
   .answer:disabled { cursor: default; }
@@ -126,38 +135,43 @@
   }
   .summary h1 {
     font-size: clamp(1.8rem, 7vw, 2.6rem);
-    font-weight: 700;
+    font-weight: 800;
+    color: #2d1b4e;
   }
   .summary .points {
     font-size: clamp(4rem, 20vw, 7rem);
     font-weight: 800;
-    color: #2ecc71;
+    background: linear-gradient(135deg, #ff8fc8, #a570ff, #5b8fff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     line-height: 1;
   }
   .summary .stats {
     display: flex;
     gap: 32px;
     font-size: 1.1rem;
-    color: #8a8aa3;
+    color: #6b4d8a;
   }
   .summary .stats strong {
     display: block;
     font-size: 1.6rem;
-    color: #fff;
+    color: #2d1b4e;
     margin-top: 4px;
   }
   .play-again {
     margin-top: 20px;
     padding: 18px 48px;
     border: none;
-    border-radius: 18px;
-    background: #2ecc71;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #ff8fc8, #a570ff);
     color: #fff;
     font-size: 1.3rem;
-    font-weight: 700;
+    font-weight: 800;
     font-family: inherit;
     cursor: pointer;
     transition: transform 0.08s ease;
+    box-shadow: 0 6px 20px rgba(165, 112, 255, 0.4);
   }
   .play-again:active { transform: scale(0.96); }
   .hidden { display: none !important; }
