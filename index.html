@@ -21,14 +21,43 @@
     flex-direction: column;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
-  .score {
-    text-align: center;
-    padding: 12px;
-    font-size: 1rem;
+  .status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    font-size: 0.95rem;
     color: #8a8aa3;
     letter-spacing: 0.05em;
+    gap: 12px;
   }
-  .score strong { color: #fff; }
+  .status strong { color: #fff; }
+  .status .info {
+    display: flex;
+    gap: 18px;
+    flex: 1;
+    justify-content: space-between;
+  }
+  .reset-btn {
+    border: none;
+    background: #2a2a4a;
+    color: #8a8aa3;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.08s ease, background 0.2s ease;
+  }
+  .reset-btn:active {
+    transform: scale(0.92);
+    background: #3a3a5a;
+  }
   .question {
     flex: 1;
     display: flex;
@@ -81,25 +110,98 @@
     25% { transform: translateX(-8px); }
     75% { transform: translateX(8px); }
   }
+  .summary {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 18px;
+    text-align: center;
+  }
+  .summary h1 {
+    font-size: clamp(1.8rem, 7vw, 2.6rem);
+    font-weight: 700;
+  }
+  .summary .points {
+    font-size: clamp(4rem, 20vw, 7rem);
+    font-weight: 800;
+    color: #2ecc71;
+    line-height: 1;
+  }
+  .summary .stats {
+    display: flex;
+    gap: 32px;
+    font-size: 1.1rem;
+    color: #8a8aa3;
+  }
+  .summary .stats strong {
+    display: block;
+    font-size: 1.6rem;
+    color: #fff;
+    margin-top: 4px;
+  }
+  .play-again {
+    margin-top: 20px;
+    padding: 18px 48px;
+    border: none;
+    border-radius: 18px;
+    background: #2ecc71;
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.08s ease;
+  }
+  .play-again:active { transform: scale(0.96); }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
-  <div class="score">
-    <strong id="correct">0</strong> správne · <strong id="wrong">0</strong> chyby
+  <div class="status" id="status">
+    <button class="reset-btn" id="resetBtn" aria-label="Reset">↻</button>
+    <div class="info">
+      <span>Otázka <strong id="qNum">1</strong>/10</span>
+      <span><strong id="correct">0</strong> ✓</span>
+      <span><strong id="timer">0.0</strong> s</span>
+    </div>
   </div>
   <div class="question" id="question">— × — </div>
   <div class="grid" id="grid"></div>
 
+  <div class="summary hidden" id="summary">
+    <h1>Hotovo!</h1>
+    <div class="points" id="finalPoints">0</div>
+    <div class="stats">
+      <div>Správne<strong id="finalCorrect">0/10</strong></div>
+      <div>Čas<strong id="finalTime">0.0 s</strong></div>
+    </div>
+    <button class="play-again" id="playAgain">Znova</button>
+  </div>
+
 <script>
+  const TOTAL_QUESTIONS = 10;
+
   const qEl = document.getElementById('question');
   const gridEl = document.getElementById('grid');
+  const statusEl = document.getElementById('status');
+  const qNumEl = document.getElementById('qNum');
   const correctEl = document.getElementById('correct');
-  const wrongEl = document.getElementById('wrong');
+  const timerEl = document.getElementById('timer');
+  const summaryEl = document.getElementById('summary');
+  const finalPointsEl = document.getElementById('finalPoints');
+  const finalCorrectEl = document.getElementById('finalCorrect');
+  const finalTimeEl = document.getElementById('finalTime');
+  const playAgainBtn = document.getElementById('playAgain');
 
+  let questionIndex = 0;
   let correctCount = 0;
-  let wrongCount = 0;
   let currentAnswer = 0;
   let locked = false;
+  let startTime = 0;
+  let timerInterval = null;
 
   function rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -115,8 +217,23 @@
     return Array.from(options).sort(() => Math.random() - 0.5);
   }
 
+  function elapsedSeconds() {
+    return (Date.now() - startTime) / 1000;
+  }
+
+  function updateTimer() {
+    timerEl.textContent = elapsedSeconds().toFixed(1);
+  }
+
   function nextQuestion() {
+    if (questionIndex >= TOTAL_QUESTIONS) {
+      finish();
+      return;
+    }
+    questionIndex++;
+    qNumEl.textContent = questionIndex;
     locked = false;
+
     const a = rand(1, 10);
     const b = rand(1, 10);
     currentAnswer = a * b;
@@ -143,21 +260,69 @@
       btn.classList.add('correct');
       correctCount++;
       correctEl.textContent = correctCount;
-      setTimeout(nextQuestion, 600);
+      setTimeout(nextQuestion, 500);
     } else {
       btn.classList.add('wrong');
-      wrongCount++;
-      wrongEl.textContent = wrongCount;
       buttons.forEach(b => {
         if (parseInt(b.textContent, 10) === currentAnswer) {
           b.classList.add('correct');
         }
       });
-      setTimeout(nextQuestion, 1200);
+      setTimeout(nextQuestion, 1100);
     }
   }
 
-  nextQuestion();
+  function computeScore(correct, totalSeconds) {
+    // Base: 100 points per correct answer.
+    // Time bonus: scaled so a fast perfect run (~30s for 10) gets a strong bonus,
+    // a slow run (>120s) gets none. Bonus only applies to correct answers.
+    const base = correct * 100;
+    const idealPerQ = 3;            // seconds per question for max bonus
+    const cutoffPerQ = 12;          // seconds per question past which bonus is 0
+    const avg = totalSeconds / TOTAL_QUESTIONS;
+    let speedFactor = (cutoffPerQ - avg) / (cutoffPerQ - idealPerQ);
+    speedFactor = Math.max(0, Math.min(1, speedFactor));
+    const bonus = Math.round(correct * 10 * speedFactor);
+    return base + bonus;
+  }
+
+  function finish() {
+    clearInterval(timerInterval);
+    const totalTime = elapsedSeconds();
+    const points = computeScore(correctCount, totalTime);
+
+    statusEl.classList.add('hidden');
+    qEl.classList.add('hidden');
+    gridEl.classList.add('hidden');
+
+    finalPointsEl.textContent = points;
+    finalCorrectEl.textContent = `${correctCount}/${TOTAL_QUESTIONS}`;
+    finalTimeEl.textContent = `${totalTime.toFixed(1)} s`;
+    summaryEl.classList.remove('hidden');
+  }
+
+  function start() {
+    questionIndex = 0;
+    correctCount = 0;
+    correctEl.textContent = '0';
+    qNumEl.textContent = '1';
+
+    statusEl.classList.remove('hidden');
+    qEl.classList.remove('hidden');
+    gridEl.classList.remove('hidden');
+    summaryEl.classList.add('hidden');
+
+    startTime = Date.now();
+    clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimer, 100);
+    updateTimer();
+
+    nextQuestion();
+  }
+
+  playAgainBtn.addEventListener('click', start);
+  document.getElementById('resetBtn').addEventListener('click', start);
+  start();
 </script>
 </body>
 </html>
